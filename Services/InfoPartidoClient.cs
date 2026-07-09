@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace UTNGolCoinApi.Services;
 
@@ -71,24 +72,42 @@ public interface IInfoPartidoClient
     Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId);
 }
 
+/// <summary>Cliente HTTP hacia Guacales. Aporte de integración Persona 1 ↔ Persona 2.</summary>
 public class InfoPartidoClient : IInfoPartidoClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<InfoPartidoClient> _logger;
 
-    public InfoPartidoClient(HttpClient httpClient)
+    public InfoPartidoClient(HttpClient httpClient, ILogger<InfoPartidoClient> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId)
     {
-        var response = await _httpClient.GetAsync($"partidos/{partidoId}");
-        if (!response.IsSuccessStatusCode) return null;
-
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<InfoPartidoDto>(json, new JsonSerializerOptions
+        try
         {
-            PropertyNameCaseInsensitive = true
-        });
+            var response = await _httpClient.GetAsync($"partidos/{partidoId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    "Guacales respondió {Status} al pedir partido {PartidoId}",
+                    (int)response.StatusCode,
+                    partidoId);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<InfoPartidoDto>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "No se pudo consultar el partido {PartidoId} en Estadísticas", partidoId);
+            return null;
+        }
     }
 }
