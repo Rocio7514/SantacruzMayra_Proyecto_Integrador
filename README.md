@@ -103,3 +103,7 @@ Acepta el JSON de Guacales con `fechaHora` + `cuotas.{local,empate,visitante}`, 
 2. Clonar su repositorio y revisar su `README-setup` para las instrucciones de conexión de su lado.
 3. Probar el flujo completo end-to-end una vez ambos backends estén corriendo en la misma red.
 4. Agregar pruebas unitarias (xUnit) para `PrediccionService` y `LiquidacionService`.
+
+## Consumo desde el Frontend Público
+
+Ver [docs/CONSUMO-FRONTEND-PUBLICO.md](docs/CONSUMO-FRONTEND-PUBLICO.md) (notas de Persona 4).
