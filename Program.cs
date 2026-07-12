@@ -28,8 +28,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddHttpClient<IInfoPartidoClient, InfoPartidoClient>(client =>
 {
     var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "http://192.168.1.38:8080/demo/api/v1/"; // lo que me dio mi companera  Andrea
+        ?? "http://localhost:8080/demo/api/v1/";
     client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(10);
 });
 
 
