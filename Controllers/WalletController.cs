@@ -14,11 +14,6 @@ public class WalletController : ControllerBase
     {
         _walletService = walletService;
     }
-
-    /// <summary>
-    /// Llamado por el Servicio de Estadísticas cuando se registra un usuario nuevo.
-    /// Crea la billetera con saldo 10 y registra la transacción WelcomeBonus.
-    /// </summary>
     [HttpPost("create")]
     public async Task<ActionResult<WalletResponse>> Create([FromBody] CreateWalletRequest request)
     {
@@ -26,7 +21,6 @@ public class WalletController : ControllerBase
         return Ok(wallet);
     }
 
-    /// <summary>Saldo actual del usuario.</summary>
     [HttpGet("{userId:int}")]
     public async Task<ActionResult<WalletResponse>> GetBalance(int userId)
     {

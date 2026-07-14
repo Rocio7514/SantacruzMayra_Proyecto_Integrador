@@ -15,7 +15,6 @@ public class RankingController : ControllerBase
         _walletService = walletService;
     }
 
-    /// <summary>Ordena a todos los usuarios por saldo descendente.</summary>
     [HttpGet]
     public async Task<ActionResult<List<RankingEntry>>> Get()
     {

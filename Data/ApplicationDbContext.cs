@@ -16,14 +16,14 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // --- Wallet ---
+        // Wallet
         modelBuilder.Entity<Wallet>(entity =>
         {
             entity.HasIndex(w => w.UserId).IsUnique(); // un usuario = una billetera
             entity.Property(w => w.Balance).HasColumnType("decimal(12,2)");
         });
 
-        // --- Transaction ---
+        // Transaction
         modelBuilder.Entity<Transaction>(entity =>
         {
             entity.Property(t => t.Amount).HasColumnType("decimal(12,2)");
@@ -35,7 +35,7 @@ public class ApplicationDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // --- Prediction ---
+        // Prediction 
         modelBuilder.Entity<Prediction>(entity =>
         {
             entity.Property(p => p.Amount).HasColumnType("decimal(12,2)");
@@ -43,11 +43,11 @@ public class ApplicationDbContext : DbContext
             entity.Property(p => p.PredictionType).HasConversion<string>().HasMaxLength(10);
             entity.Property(p => p.Status).HasConversion<string>().HasMaxLength(10);
 
-            // Regla del proyecto: una sola predicción por usuario y partido
+            // Una sola predicción por usuario y partido
             entity.HasIndex(p => new { p.UserId, p.MatchId }).IsUnique();
         });
 
-        // --- DailyBonus ---
+        // DailyBonus
         modelBuilder.Entity<DailyBonus>(entity =>
         {
             // Regla del proyecto: máximo un bono diario por usuario y día

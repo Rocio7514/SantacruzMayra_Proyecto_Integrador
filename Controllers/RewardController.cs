@@ -15,12 +15,6 @@ public class RewardController : ControllerBase
         _rewardService = rewardService;
     }
 
-    /// <summary>
-    /// Endpoint MÁS IMPORTANTE del servicio. Lo invoca el Servicio de
-    /// Estadísticas (Persona A) cuando el administrador registra el
-    /// resultado oficial de un partido. Liquida automáticamente todas
-    /// las predicciones pendientes de ese partido.
-    /// </summary>
     [HttpPost("process")]
     public async Task<ActionResult<ProcessRewardsResponse>> Process([FromBody] ProcessRewardsRequest request)
     {

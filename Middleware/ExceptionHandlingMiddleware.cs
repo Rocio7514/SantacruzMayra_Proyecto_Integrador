@@ -3,11 +3,6 @@ using UTNGolCoinApi.Services;
 
 namespace UTNGolCoinApi.Middleware;
 
-/// <summary>
-/// Middleware global de manejo de errores. Traduce cada excepción de
-/// negocio a un código HTTP apropiado, para que el frontend reciba un
-/// mensaje claro en vez de un error 500 genérico.
-/// </summary>
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;

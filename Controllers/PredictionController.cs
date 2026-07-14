@@ -14,12 +14,6 @@ public class PredictionController : ControllerBase
     {
         _predictionService = predictionService;
     }
-
-    /// <summary>
-    /// Crea una predicción 1X2 sobre un partido. Valida saldo, que el
-    /// partido no haya iniciado (consultando al Servicio de Estadísticas)
-    /// y que el usuario no tenga ya una predicción para ese partido.
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<PredictionResponse>> Create([FromBody] CreatePredictionRequest request)
     {
@@ -27,7 +21,7 @@ public class PredictionController : ControllerBase
         return Ok(result);
     }
 
-    /// <summary>Lista todas las predicciones (histórico) de un usuario.</summary>
+    
     [HttpGet("user/{userId:int}")]
     public async Task<ActionResult<List<PredictionResponse>>> GetByUser(int userId)
     {
