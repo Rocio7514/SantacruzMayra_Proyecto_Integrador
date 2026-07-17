@@ -6,78 +6,100 @@ Tecnología: **ASP.NET Core Web API (.NET 10)** + **Entity Framework Core** + **
 
 ## 1. Requisitos previos
 
-- .NET SDK 10 instalado (https://dotnet.microsoft.com/download)
+- .NET SDK 10 instalado
 - MySQL Server 8 corriendo, con la base `utngolcoin_db` creada:
   ```sql
   CREATE DATABASE utngolcoin_db;
   ```
-- Ajusta la cadena de conexión en `appsettings.json` si tu usuario/contraseña de MySQL son distintos.
 
-## 2. Restaurar paquetes NuGet
+## 2. Restaurar paquetes y regenerar la base de datos
 
-Este proyecto **no incluye** la carpeta `bin/`, `obj/` ni los paquetes NuGet — se descargan al restaurar:
+Como las tablas cambiaron de inglés a español, hay que borrar las migraciones/tablas viejas y regenerar:
 
 ```bash
-cd UTNGolCoinApi
 dotnet restore
 ```
 
-## 3. Crear la primera migración y aplicarla a la base de datos
+En MySQL Workbench, borra las tablas viejas si existían (`wallets`, `transactions`, `predictions`, `dailybonuses`, `__efmigrationshistory`), o simplemente:
+```sql
+DROP DATABASE utngolcoin_db;
+CREATE DATABASE utngolcoin_db;
+```
 
+Luego genera la migración nueva:
 ```bash
-dotnet tool install --global dotnet-ef   # solo la primera vez, si no lo tienes
 dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
-Esto crea las tablas `Wallets`, `Transactions`, `Predictions` y `DailyBonuses` con los índices únicos ya configurados en `Data/ApplicationDbContext.cs`.
+Esto crea las tablas `billeteras`, `transacciones`, `predicciones` y `bonos_diarios`.
 
-## 4. Configurar la IP del Servicio de Estadísticas (Persona A)
+## 3. Configurar la URL del Servicio de Estadísticas (Persona A)
 
-En `appsettings.json`, cambia:
+En `appsettings.json`:
 ```json
 "ServicioEstadisticas": {
-  "BaseUrl": "http://192.168.1.11:8080/api/"
+  "BaseUrl": "http://192.168.1.38:8080/demo/api/v1/"
 }
 ```
-por la IP real de la laptop de tu compañero(a) en la red del equipo (ver manual de red del proyecto).
+Actualiza la IP si tu compañera cambia de red.
 
-## 5. Ejecutar el proyecto
+## 4. Ejecutar el proyecto
 
-Para que sea visible desde otras laptops de la red (requisito del proyecto):
 ```bash
 dotnet run --urls http://0.0.0.0:5000
 ```
 
-Swagger (documentación interactiva de todos los endpoints) queda disponible en:
-```
-http://localhost:5000/swagger
-```
+- Página de bienvenida: `http://localhost:5000/`
+- Swagger: `http://localhost:5000/swagger`
 
-## 6. Endpoints implementados
+## 5. Endpoints implementados
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/wallet/create` | Crea billetera + bono de bienvenida (10 UGC). Lo llama Persona A al registrar un usuario. |
-| GET | `/wallet/{userId}` | Saldo actual. |
-| GET | `/wallet/{userId}/transactions` | Historial completo (ledger). |
-| GET | `/ranking` | Usuarios ordenados por saldo. |
-| POST | `/prediction` | Crea una predicción 1X2 (valida saldo, duplicado y que el partido no haya iniciado). |
-| GET | `/prediction/user/{userId}` | Historial de predicciones de un usuario. |
-| POST | `/dailybonus/{userId}` | Otorga 1 UGC si el saldo es 0 y no se ha recibido bono hoy. |
-| POST | `/api/rewards/process` | **Endpoint clave**: lo llama Persona A al registrar el resultado oficial de un partido. Liquida todas las predicciones pendientes. |
+| POST | `/api/billeteras` | Crea billetera + bono de bienvenida (10 UGC). Lo llama Persona A al registrar un usuario. |
+| GET | `/api/billeteras/{usuarioId}` | Saldo actual. |
+| GET | `/api/billeteras/{usuarioId}/transacciones` | Historial completo (ledger). |
+| GET | `/api/ranking` | Usuarios ordenados por saldo. |
+| POST | `/api/predicciones` | Crea una predicción 1X2 (valida saldo, duplicado y que el partido no haya iniciado). |
+| GET | `/api/predicciones/usuario/{usuarioId}` | Historial de predicciones de un usuario. |
+| POST | `/api/predicciones/bono-diario/{usuarioId}` | Otorga 1 UGC si el saldo es 0 y no se ha recibido bono hoy. |
+| POST | `/api/liquidaciones/{partidoId}` | **Endpoint clave**: lo llama Persona A al registrar el resultado oficial de un partido. Body: `{ "golesLocal": 2, "golesVisitante": 1 }`. Liquida todas las predicciones pendientes. |
+
+## 6. Contrato con el Servicio de Estadísticas (Persona A)
+
+**Lo que Persona A debe llamar hacia este servicio:**
+
+1. Al registrar un usuario nuevo:
+   ```
+   POST http://<tu-IP>:5000/api/billeteras
+   Body: { "usuarioId": 7 }
+   ```
+2. Al registrar el resultado oficial de un partido:
+   ```
+   POST http://<tu-IP>:5000/api/liquidaciones/{partidoId}
+   Body: { "golesLocal": 2, "golesVisitante": 1 }
+   ```
+   (los mismos goles que ella ya recibió en su `PUT /partidos/{id}/resultado` — no necesita calcular el ganador, este servicio lo hace).
+
+**Lo que este servicio consulta hacia Persona A** (`Services/InfoPartidoClient.cs`):
+```
+GET http://192.168.1.38:8080/demo/api/v1/partidos/{id}
+```
+Espera un JSON con: `id`, `fechaHoraUtc`, `estado`, `cuotaLocal`, `cuotaEmpate`, `cuotaVisitante`. Si los nombres de campo de Persona A son distintos, hay que ajustar `InfoPartidoDto` en ese archivo.
 
 ## 7. Notas de diseño
 
-- **Autenticación de usuarios**: vive en el Servicio de Estadísticas (Persona A). Este servicio no tiene tabla de usuarios ni de contraseñas — solo referencia `userId` de forma lógica.
-- **Ledger inmutable**: la tabla `Transactions` nunca se edita ni se borra, solo se agregan filas nuevas (ver `Models/Transaction.cs`).
-- **Restricciones de integridad** aplicadas con índices únicos en la base de datos (no solo validación en código):
-  - Un usuario = una sola predicción por partido (`Predictions.UserId + MatchId`).
-  - Un usuario = un solo bono diario por día (`DailyBonuses.UserId + Date`).
-- **Manejo de errores**: `Middleware/ExceptionHandlingMiddleware.cs` traduce cada regla de negocio violada (saldo insuficiente, predicción duplicada, partido ya iniciado, etc.) a un código HTTP claro (400/404/409) con un mensaje JSON, en vez de un error 500 genérico.
+- **Autenticación de usuarios**: vive en el Servicio de Estadísticas (Persona A, endpoints `/autenticacion/registro` y `/autenticacion/sesion`, JWT). Este servicio no tiene tabla de usuarios ni de contraseñas — solo referencia `usuarioId` de forma lógica.
+- **Ledger inmutable**: la tabla `transacciones` nunca se edita ni se borra, solo se agregan filas nuevas.
+- **Restricciones de integridad** aplicadas con índices únicos en la base de datos:
+  - Un usuario = una sola predicción por partido (`predicciones.usuario_id + partido_id`).
+  - Un usuario = un solo bono diario por día (`bonos_diarios.usuario_id + fecha`).
+- **Manejo de errores**: `Middleware/ExceptionHandlingMiddleware.cs` traduce cada regla de negocio violada a un código HTTP claro (400/404/409) con un mensaje JSON.
 
 ## 8. Próximos pasos sugeridos
 
-1. Probar cada endpoint con Postman contra `localhost` primero, y luego contra tu IP real desde otra laptop del equipo.
-2. Coordinar con la Persona A el contrato exacto de `GET /api/partidos/{id}` (campos `estado`, `fechaHoraUtc`, `cuotaLocal`, `cuotaEmpate`, `cuotaVisitante`) para que `MatchInfoClient` deserialice correctamente.
-3. Agregar pruebas unitarias (xUnit) para `PredictionService` y `RewardService` — son la lógica más sensible del proyecto.
+1. Enviar a Persona A la sección 6 de este README con los 2 endpoints que debe llamar.
+2. Clonar su repositorio y revisar su `README-setup` para las instrucciones de conexión de su lado.
+3. Probar el flujo completo end-to-end una vez ambos backends estén corriendo en la misma red.
+4. Agregar pruebas unitarias (xUnit) para `PrediccionService` y `LiquidacionService`.
