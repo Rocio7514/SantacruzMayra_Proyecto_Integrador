@@ -5,20 +5,21 @@ using UTNGolCoinApi.Services;
 namespace UTNGolCoinApi.Controllers;
 
 [ApiController]
-[Route("ranking")]
+[Route("api/ranking")]
 public class RankingController : ControllerBase
 {
-    private readonly IWalletService _walletService;
+    private readonly IBilleteraService _billeteraService;
 
-    public RankingController(IWalletService walletService)
+    public RankingController(IBilleteraService billeteraService)
     {
-        _walletService = walletService;
+        _billeteraService = billeteraService;
     }
 
+   
     [HttpGet]
-    public async Task<ActionResult<List<RankingEntry>>> Get()
+    public async Task<ActionResult<List<RankingEntrada>>> Obtener()
     {
-        var ranking = await _walletService.GetRankingAsync();
+        var ranking = await _billeteraService.ObtenerRankingAsync();
         return Ok(ranking);
     }
 }

@@ -4,11 +4,11 @@ using System.Text.Json.Serialization;
 namespace UTNGolCoinApi.Services;
 
 /// <summary>
-/// Representa la información mínima de un partido que este servicio necesita
-/// consultar en el Servicio de Estadísticas (Persona A) para validar una
-/// predicción: si ya comenzó, y las cuotas vigentes 1X2.
+/// Información mínima de un partido que este servicio necesita consultar
+/// en el Servicio de Estadísticas (Persona A) para validar una predicción:
+/// si ya comenzó, y las cuotas vigentes 1X2.
 /// </summary>
-public class MatchInfoDto
+public class InfoPartidoDto
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
@@ -32,29 +32,29 @@ public class MatchInfoDto
 /// <summary>
 /// Cliente HTTP hacia el Servicio de Estadísticas. Se registra como
 /// HttpClient con nombre "ServicioEstadisticas" en Program.cs, apuntando
-/// a la IP real de la Persona A en la red del equipo.
+/// a la URL base real que te compartió tu compañera de Persona A.
 /// </summary>
-public interface IMatchInfoClient
+public interface IInfoPartidoClient
 {
-    Task<MatchInfoDto?> GetMatchAsync(int matchId);
+    Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId);
 }
 
-public class MatchInfoClient : IMatchInfoClient
+public class InfoPartidoClient : IInfoPartidoClient
 {
     private readonly HttpClient _httpClient;
 
-    public MatchInfoClient(HttpClient httpClient)
+    public InfoPartidoClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
 
-    public async Task<MatchInfoDto?> GetMatchAsync(int matchId)
+    public async Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId)
     {
-        var response = await _httpClient.GetAsync($"partidos/{matchId}");
+        var response = await _httpClient.GetAsync($"partidos/{partidoId}");
         if (!response.IsSuccessStatusCode) return null;
 
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<MatchInfoDto>(json, new JsonSerializerOptions
+        return JsonSerializer.Deserialize<InfoPartidoDto>(json, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });

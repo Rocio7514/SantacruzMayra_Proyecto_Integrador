@@ -24,12 +24,12 @@ public class ExceptionHandlingMiddleware
         {
             var statusCode = ex switch
             {
-                WalletNotFoundException or MatchNotFoundException => HttpStatusCode.NotFound,
-                DuplicatePredictionException => HttpStatusCode.Conflict,
-                InsufficientBalanceException
-                    or MatchAlreadyStartedException
-                    or InvalidPredictionValueException
-                    or DailyBonusNotEligibleException => HttpStatusCode.BadRequest,
+                BilleteraNoEncontradaException or PartidoNoEncontradoException => HttpStatusCode.NotFound,
+                PrediccionDuplicadaException => HttpStatusCode.Conflict,
+                SaldoInsuficienteException
+                    or PartidoYaIniciadoException
+                    or ValorPrediccionInvalidoException
+                    or BonoDiarioNoElegibleException => HttpStatusCode.BadRequest,
                 _ => HttpStatusCode.InternalServerError
             };
 
@@ -38,7 +38,7 @@ public class ExceptionHandlingMiddleware
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)statusCode;
-            await context.Response.WriteAsJsonAsync(new { message = ex.Message });
+            await context.Response.WriteAsJsonAsync(new { mensaje = ex.Message });
         }
     }
 }

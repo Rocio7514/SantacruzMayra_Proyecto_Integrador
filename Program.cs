@@ -7,6 +7,7 @@ using UTNGolCoinApi.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -18,25 +19,28 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
 var connectionString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-builder.Services.AddHttpClient<IMatchInfoClient, MatchInfoClient>(client =>
+
+builder.Services.AddHttpClient<IInfoPartidoClient, InfoPartidoClient>(client =>
 {
     var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "http://localhost:8080/api/";
+        ?? "http://192.168.1.38:8080/demo/api/v1/"; // lo que me dio mi companera  Andrea
     client.BaseAddress = new Uri(baseUrl);
 });
 
-builder.Services.AddScoped<IWalletRepository, WalletRepository>();
-builder.Services.AddScoped<IPredictionRepository, PredictionRepository>();
-builder.Services.AddScoped<IDailyBonusRepository, DailyBonusRepository>();
 
-builder.Services.AddScoped<IWalletService, WalletService>();
-builder.Services.AddScoped<IPredictionService, PredictionService>();
-builder.Services.AddScoped<IRewardService, RewardService>();
-builder.Services.AddScoped<IDailyBonusService, DailyBonusService>();
+builder.Services.AddScoped<IBilleteraRepository, BilleteraRepository>();
+builder.Services.AddScoped<IPrediccionRepository, PrediccionRepository>();
+builder.Services.AddScoped<IBonoDiarioRepository, BonoDiarioRepository>();
+
+builder.Services.AddScoped<IBilleteraService, BilleteraService>();
+builder.Services.AddScoped<IPrediccionService, PrediccionService>();
+builder.Services.AddScoped<ILiquidacionService, LiquidacionService>();
+builder.Services.AddScoped<IBonoDiarioService, BonoDiarioService>();
 
 builder.Services.AddCors(options =>
 {
@@ -45,13 +49,17 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(); 
 }
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseCors("AllowFrontends");
 app.UseAuthorization();

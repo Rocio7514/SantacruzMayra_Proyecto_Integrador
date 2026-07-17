@@ -7,51 +7,55 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-    public DbSet<Wallet> Wallets => Set<Wallet>();
-    public DbSet<Transaction> Transactions => Set<Transaction>();
-    public DbSet<Prediction> Predictions => Set<Prediction>();
-    public DbSet<DailyBonus> DailyBonuses => Set<DailyBonus>();
+    public DbSet<Billetera> Billeteras => Set<Billetera>();
+    public DbSet<Transaccion> Transacciones => Set<Transaccion>();
+    public DbSet<Prediccion> Predicciones => Set<Prediccion>();
+    public DbSet<BonoDiario> BonosDiarios => Set<BonoDiario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Wallet
-        modelBuilder.Entity<Wallet>(entity =>
+        // --- Billetera ---
+        modelBuilder.Entity<Billetera>(entity =>
         {
-            entity.HasIndex(w => w.UserId).IsUnique(); // un usuario = una billetera
-            entity.Property(w => w.Balance).HasColumnType("decimal(12,2)");
+            entity.ToTable("billeteras");
+            entity.HasIndex(w => w.UsuarioId).IsUnique(); // un usuario = una billetera
+            entity.Property(w => w.Saldo).HasColumnType("decimal(12,2)");
         });
 
-        // Transaction
-        modelBuilder.Entity<Transaction>(entity =>
+        // --- Transaccion ---
+        modelBuilder.Entity<Transaccion>(entity =>
         {
-            entity.Property(t => t.Amount).HasColumnType("decimal(12,2)");
-            entity.Property(t => t.Type).HasConversion<string>().HasMaxLength(30);
+            entity.ToTable("transacciones");
+            entity.Property(t => t.Monto).HasColumnType("decimal(12,2)");
+            entity.Property(t => t.Tipo).HasConversion<string>().HasMaxLength(30);
 
-            entity.HasOne(t => t.Wallet)
-                  .WithMany(w => w.Transactions)
-                  .HasForeignKey(t => t.WalletId)
+            entity.HasOne(t => t.Billetera)
+                  .WithMany(w => w.Transacciones)
+                  .HasForeignKey(t => t.BilleteraId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Prediction 
-        modelBuilder.Entity<Prediction>(entity =>
+        // --- Prediccion ---
+        modelBuilder.Entity<Prediccion>(entity =>
         {
-            entity.Property(p => p.Amount).HasColumnType("decimal(12,2)");
-            entity.Property(p => p.Odds).HasColumnType("decimal(6,2)");
-            entity.Property(p => p.PredictionType).HasConversion<string>().HasMaxLength(10);
-            entity.Property(p => p.Status).HasConversion<string>().HasMaxLength(10);
+            entity.ToTable("predicciones");
+            entity.Property(p => p.Monto).HasColumnType("decimal(12,2)");
+            entity.Property(p => p.CuotaAplicada).HasColumnType("decimal(6,2)");
+            entity.Property(p => p.ResultadoPronosticado).HasConversion<string>().HasMaxLength(10);
+            entity.Property(p => p.Estado).HasConversion<string>().HasMaxLength(10);
 
-            // Una sola predicción por usuario y partido
-            entity.HasIndex(p => new { p.UserId, p.MatchId }).IsUnique();
+            // Regla del proyecto: una sola predicción por usuario y partido
+            entity.HasIndex(p => new { p.UsuarioId, p.PartidoId }).IsUnique();
         });
 
-        // DailyBonus
-        modelBuilder.Entity<DailyBonus>(entity =>
+        // --- BonoDiario ---
+        modelBuilder.Entity<BonoDiario>(entity =>
         {
+            entity.ToTable("bonos_diarios");
             // Regla del proyecto: máximo un bono diario por usuario y día
-            entity.HasIndex(d => new { d.UserId, d.Date }).IsUnique();
+            entity.HasIndex(d => new { d.UsuarioId, d.Fecha }).IsUnique();
         });
     }
 }
