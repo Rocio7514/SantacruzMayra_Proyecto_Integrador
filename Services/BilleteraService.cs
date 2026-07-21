@@ -28,7 +28,7 @@ public class BilleteraService : IBilleteraService
         var existente = await _billeteraRepository.ObtenerPorUsuarioIdAsync(usuarioId);
         if (existente != null)
         {
-            // Idempotencia: si el usuario ya tiene billetera, no se duplica.
+            
             return new BilleteraResponse(existente.UsuarioId, existente.Saldo);
         }
 

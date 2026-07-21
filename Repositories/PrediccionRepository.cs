@@ -27,5 +27,8 @@ public class PrediccionRepository : IPrediccionRepository
         _db.Predicciones.Where(p => p.PartidoId == partidoId && p.Estado == EstadoPrediccion.PENDIENTE)
                           .ToListAsync();
 
+    public Task<List<Prediccion>> ObtenerTodasAsync() =>
+        _db.Predicciones.ToListAsync();
+
     public Task GuardarCambiosAsync() => _db.SaveChangesAsync();
 }

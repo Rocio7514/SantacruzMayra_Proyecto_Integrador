@@ -11,20 +11,19 @@ public class ApplicationDbContext : DbContext
     public DbSet<Transaccion> Transacciones => Set<Transaccion>();
     public DbSet<Prediccion> Predicciones => Set<Prediccion>();
     public DbSet<BonoDiario> BonosDiarios => Set<BonoDiario>();
+    public DbSet<ConfiguracionSistema> Configuracion => Set<ConfiguracionSistema>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // --- Billetera ---
         modelBuilder.Entity<Billetera>(entity =>
         {
             entity.ToTable("billeteras");
-            entity.HasIndex(w => w.UsuarioId).IsUnique(); // un usuario = una billetera
+            entity.HasIndex(w => w.UsuarioId).IsUnique(); 
             entity.Property(w => w.Saldo).HasColumnType("decimal(12,2)");
         });
 
-        // --- Transaccion ---
         modelBuilder.Entity<Transaccion>(entity =>
         {
             entity.ToTable("transacciones");
@@ -37,7 +36,7 @@ public class ApplicationDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // --- Prediccion ---
+
         modelBuilder.Entity<Prediccion>(entity =>
         {
             entity.ToTable("predicciones");
@@ -46,16 +45,22 @@ public class ApplicationDbContext : DbContext
             entity.Property(p => p.ResultadoPronosticado).HasConversion<string>().HasMaxLength(10);
             entity.Property(p => p.Estado).HasConversion<string>().HasMaxLength(10);
 
-            // Regla del proyecto: una sola predicción por usuario y partido
             entity.HasIndex(p => new { p.UsuarioId, p.PartidoId }).IsUnique();
         });
 
-        // --- BonoDiario ---
         modelBuilder.Entity<BonoDiario>(entity =>
         {
             entity.ToTable("bonos_diarios");
-            // Regla del proyecto: máximo un bono diario por usuario y día
+           
             entity.HasIndex(d => new { d.UsuarioId, d.Fecha }).IsUnique();
+        });
+
+        modelBuilder.Entity<ConfiguracionSistema>(entity =>
+        {
+            entity.ToTable("configuracion");
+            entity.Property(c => c.BonoInicial).HasColumnType("decimal(12,2)");
+            entity.Property(c => c.MonedasPorAcierto).HasColumnType("decimal(12,2)");
+            entity.Property(c => c.LimiteMaximoApuesta).HasColumnType("decimal(12,2)");
         });
     }
 }

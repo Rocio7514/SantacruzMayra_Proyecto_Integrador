@@ -69,6 +69,31 @@ namespace UTNGolCoinApi.Migrations
                     b.ToTable("bonos_diarios", (string)null);
                 });
 
+            modelBuilder.Entity("UTNGolCoinApi.Models.ConfiguracionSistema", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ApuestasHabilitadas")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<decimal>("BonoInicial")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("LimiteMaximoApuesta")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("MonedasPorAcierto")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("configuracion", (string)null);
+                });
+
             modelBuilder.Entity("UTNGolCoinApi.Models.Prediccion", b =>
                 {
                     b.Property<int>("Id")

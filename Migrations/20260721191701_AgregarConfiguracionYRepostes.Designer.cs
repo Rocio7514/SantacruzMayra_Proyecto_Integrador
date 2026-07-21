@@ -12,8 +12,8 @@ using UTNGolCoinApi.Data;
 namespace UTNGolCoinApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260717130205_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260721191701_AgregarConfiguracionYRepostes")]
+    partial class AgregarConfiguracionYRepostes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,6 +70,31 @@ namespace UTNGolCoinApi.Migrations
                         .IsUnique();
 
                     b.ToTable("bonos_diarios", (string)null);
+                });
+
+            modelBuilder.Entity("UTNGolCoinApi.Models.ConfiguracionSistema", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ApuestasHabilitadas")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<decimal>("BonoInicial")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("LimiteMaximoApuesta")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("MonedasPorAcierto")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("configuracion", (string)null);
                 });
 
             modelBuilder.Entity("UTNGolCoinApi.Models.Prediccion", b =>

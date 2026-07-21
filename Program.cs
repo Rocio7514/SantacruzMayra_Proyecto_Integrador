@@ -28,7 +28,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddHttpClient<IInfoPartidoClient, InfoPartidoClient>(client =>
 {
     var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "http://192.168.1.38:8080/demo/api/v1/"; // lo que me dio mi companera  Andrea
+        ?? "https://splendid-levitate-swept.ngrok-free.dev/demo/api/v1"; // lo que me dio mi companera  Andrea
     client.BaseAddress = new Uri(baseUrl);
 });
 
@@ -36,11 +36,14 @@ builder.Services.AddHttpClient<IInfoPartidoClient, InfoPartidoClient>(client =>
 builder.Services.AddScoped<IBilleteraRepository, BilleteraRepository>();
 builder.Services.AddScoped<IPrediccionRepository, PrediccionRepository>();
 builder.Services.AddScoped<IBonoDiarioRepository, BonoDiarioRepository>();
+builder.Services.AddScoped<IConfiguracionRepository, ConfiguracionRepository>();
 
 builder.Services.AddScoped<IBilleteraService, BilleteraService>();
 builder.Services.AddScoped<IPrediccionService, PrediccionService>();
 builder.Services.AddScoped<ILiquidacionService, LiquidacionService>();
 builder.Services.AddScoped<IBonoDiarioService, BonoDiarioService>();
+builder.Services.AddScoped<IConfiguracionService, ConfiguracionService>();
+builder.Services.AddScoped<IReportesService, ReportesService>();
 
 builder.Services.AddCors(options =>
 {
@@ -57,9 +60,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(); 
 }
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
 
 app.UseCors("AllowFrontends");
 app.UseAuthorization();

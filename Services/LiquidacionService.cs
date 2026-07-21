@@ -4,11 +4,6 @@ using UTNGolCoinApi.Repositories;
 
 namespace UTNGolCoinApi.Services;
 
-/// <summary>
-/// Corazón del proyecto (RF12/RF19): liquida automáticamente todas las
-/// predicciones pendientes de un partido cuando el Servicio de Estadísticas
-/// notifica el resultado oficial (goles local y visitante).
-/// </summary>
 public interface ILiquidacionService
 {
     Task<LiquidarPremiosResponse> LiquidarAsync(int partidoId, LiquidarPremiosRequest request);
@@ -41,7 +36,7 @@ public class LiquidacionService : ILiquidacionService
                 prediccion.Estado = EstadoPrediccion.GANADA;
 
                 var billetera = await _billeteraRepository.ObtenerPorUsuarioIdAsync(prediccion.UsuarioId);
-                if (billetera is null) continue; // no debería pasar, pero no rompemos la liquidación completa
+                if (billetera is null) continue; 
 
                 billetera.Saldo += premio;
                 billetera.Transacciones.Add(new Transaccion

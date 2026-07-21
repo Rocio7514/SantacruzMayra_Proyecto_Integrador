@@ -3,11 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace UTNGolCoinApi.Services;
 
-/// <summary>
-/// Información mínima de un partido que este servicio necesita consultar
-/// en el Servicio de Estadísticas (Persona A) para validar una predicción:
-/// si ya comenzó, y las cuotas vigentes 1X2.
-/// </summary>
 public class InfoPartidoDto
 {
     [JsonPropertyName("id")]
@@ -27,17 +22,21 @@ public class InfoPartidoDto
 
     [JsonPropertyName("cuotaVisitante")]
     public decimal CuotaVisitante { get; set; }
+
+    // Nombres de las selecciones (para mostrar "España vs. Argentina" en reportes).
+    // Si el Servicio de Estadísticas usa otros nombres de campo, ajústalos aquí.
+    [JsonPropertyName("seleccionLocal")]
+    public string? SeleccionLocal { get; set; }
+
+    [JsonPropertyName("seleccionVisitante")]
+    public string? SeleccionVisitante { get; set; }
 }
 
-/// <summary>
-/// Cliente HTTP hacia el Servicio de Estadísticas. Se registra como
-/// HttpClient con nombre "ServicioEstadisticas" en Program.cs, apuntando
-/// a la URL base real que te compartió tu compañera de Persona A.
-/// </summary>
 public interface IInfoPartidoClient
 {
     Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId);
 }
+
 
 public class InfoPartidoClient : IInfoPartidoClient
 {

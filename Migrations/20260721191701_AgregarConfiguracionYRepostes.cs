@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace UTNGolCoinApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AgregarConfiguracionYRepostes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,6 +43,23 @@ namespace UTNGolCoinApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_bonos_diarios", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "configuracion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    BonoInicial = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    MonedasPorAcierto = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    LimiteMaximoApuesta = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    ApuestasHabilitadas = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_configuracion", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -123,6 +140,9 @@ namespace UTNGolCoinApi.Migrations
         {
             migrationBuilder.DropTable(
                 name: "bonos_diarios");
+
+            migrationBuilder.DropTable(
+                name: "configuracion");
 
             migrationBuilder.DropTable(
                 name: "predicciones");

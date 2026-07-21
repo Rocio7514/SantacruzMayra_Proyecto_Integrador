@@ -1,6 +1,6 @@
 namespace UTNGolCoinApi.Services;
 
-/// <summary>Excepción base para errores de reglas de negocio (se traduce a HTTP 400/404/409).</summary>
+
 public abstract class ExcepcionNegocio : Exception
 {
     protected ExcepcionNegocio(string message) : base(message) { }

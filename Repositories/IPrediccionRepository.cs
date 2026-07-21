@@ -8,5 +8,6 @@ public interface IPrediccionRepository
     Task AgregarAsync(Prediccion prediccion);
     Task<List<Prediccion>> ObtenerPorUsuarioIdAsync(int usuarioId);
     Task<List<Prediccion>> ObtenerPendientesPorPartidoIdAsync(int partidoId);
+    Task<List<Prediccion>> ObtenerTodasAsync();
     Task GuardarCambiosAsync();
 }
