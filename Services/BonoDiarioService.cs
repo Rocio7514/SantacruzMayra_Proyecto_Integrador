@@ -15,17 +15,36 @@ public class BonoDiarioService : IBonoDiarioService
 
     private readonly IBilleteraRepository _billeteraRepository;
     private readonly IBonoDiarioRepository _bonoDiarioRepository;
+    private readonly IBilleteraService _billeteraService;
 
-    public BonoDiarioService(IBilleteraRepository billeteraRepository, IBonoDiarioRepository bonoDiarioRepository)
+    public BonoDiarioService(
+        IBilleteraRepository billeteraRepository,
+        IBonoDiarioRepository bonoDiarioRepository,
+        IBilleteraService billeteraService)
     {
         _billeteraRepository = billeteraRepository;
         _bonoDiarioRepository = bonoDiarioRepository;
+        _billeteraService = billeteraService;
     }
 
     public async Task<BonoDiarioResponse> OtorgarSiEsElegibleAsync(int usuarioId)
     {
-        var billetera = await _billeteraRepository.ObtenerPorUsuarioIdAsync(usuarioId)
-            ?? throw new BilleteraNoEncontradaException(usuarioId);
+        var billeteraEncontrada = await _billeteraRepository.ObtenerPorUsuarioIdAsync(usuarioId);
+
+        if (billeteraEncontrada is null)
+        {
+            // Autocuración: si nunca se creó la billetera (p. ej. el Servicio
+            // de Estadísticas no notificó el registro), la creamos ahora con
+            // el bono de bienvenida. Como queda con saldo 10 (no 0), el bono
+            // diario no aplicará todavía — y eso es correcto: el mensaje que
+            // reciba el frontend pasa de "no existe billetera" (404) a
+            // "el bono diario solo aplica con saldo 0" (400), que ya no
+            // rompe el inicio de sesión.
+            await _billeteraService.CrearBilleteraAsync(usuarioId);
+            billeteraEncontrada = await _billeteraRepository.ObtenerPorUsuarioIdAsync(usuarioId);
+        }
+        var billetera = billeteraEncontrada
+            ?? throw new BilleteraNoEncontradaException(usuarioId); // no debería pasar nunca
 
         if (billetera.Saldo != 0)
             throw new BonoDiarioNoElegibleException("El bono diario solo aplica cuando el saldo es 0.");

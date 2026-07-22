@@ -8,5 +8,6 @@ public interface IBilleteraRepository
     Task<Billetera?> ObtenerPorUsuarioIdConTransaccionesAsync(int usuarioId);
     Task AgregarAsync(Billetera billetera);
     Task<List<Billetera>> ObtenerTodasOrdenadasPorSaldoAsync();
+    Task<List<Billetera>> ObtenerConSaldoCeroAsync();
     Task GuardarCambiosAsync();
 }

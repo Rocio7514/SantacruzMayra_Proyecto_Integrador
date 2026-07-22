@@ -30,6 +30,7 @@ public class ExceptionHandlingMiddleware
                     or PartidoYaIniciadoException
                     or ValorPrediccionInvalidoException
                     or BonoDiarioNoElegibleException => HttpStatusCode.BadRequest,
+                ServicioEstadisticasNoDisponibleException => HttpStatusCode.ServiceUnavailable,
                 _ => HttpStatusCode.InternalServerError
             };
 

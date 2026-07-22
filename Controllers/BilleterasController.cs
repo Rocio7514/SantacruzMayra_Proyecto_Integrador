@@ -27,12 +27,12 @@ public class BilleterasController : ControllerBase
     public async Task<ActionResult<BilleteraResponse>> ObtenerSaldo(int usuarioId)
     {
         var billetera = await _billeteraService.ObtenerSaldoAsync(usuarioId);
-        return billetera is null ? NotFound(new { mensaje = $"No existe billetera para el usuario {usuarioId}." }) : Ok(billetera);
+        return Ok(billetera);
     }
     [HttpGet("{usuarioId:int}/transacciones")]
     public async Task<ActionResult<List<TransaccionResponse>>> ObtenerTransacciones(int usuarioId)
     {
         var transacciones = await _billeteraService.ObtenerTransaccionesAsync(usuarioId);
-        return transacciones is null ? NotFound(new { mensaje = $"No existe billetera para el usuario {usuarioId}." }) : Ok(transacciones);
+        return Ok(transacciones);
     }
 }

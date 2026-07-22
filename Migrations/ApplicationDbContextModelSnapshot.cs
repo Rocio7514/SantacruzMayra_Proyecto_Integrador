@@ -94,6 +94,22 @@ namespace UTNGolCoinApi.Migrations
                     b.ToTable("configuracion", (string)null);
                 });
 
+            modelBuilder.Entity("UTNGolCoinApi.Models.EstadoSimulacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("FechaActual")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("estado_simulacion", (string)null);
+                });
+
             modelBuilder.Entity("UTNGolCoinApi.Models.Prediccion", b =>
                 {
                     b.Property<int>("Id")

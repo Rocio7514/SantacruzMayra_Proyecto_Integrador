@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Prediccion> Predicciones => Set<Prediccion>();
     public DbSet<BonoDiario> BonosDiarios => Set<BonoDiario>();
     public DbSet<ConfiguracionSistema> Configuracion => Set<ConfiguracionSistema>();
+    public DbSet<EstadoSimulacion> EstadoSimulacion => Set<EstadoSimulacion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -61,6 +62,11 @@ public class ApplicationDbContext : DbContext
             entity.Property(c => c.BonoInicial).HasColumnType("decimal(12,2)");
             entity.Property(c => c.MonedasPorAcierto).HasColumnType("decimal(12,2)");
             entity.Property(c => c.LimiteMaximoApuesta).HasColumnType("decimal(12,2)");
+        });
+
+        modelBuilder.Entity<EstadoSimulacion>(entity =>
+        {
+            entity.ToTable("estado_simulacion");
         });
     }
 }

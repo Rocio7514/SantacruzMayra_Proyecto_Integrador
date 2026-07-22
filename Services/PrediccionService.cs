@@ -15,15 +15,18 @@ public class PrediccionService : IPrediccionService
     private readonly IPrediccionRepository _prediccionRepository;
     private readonly IBilleteraRepository _billeteraRepository;
     private readonly IInfoPartidoClient _infoPartidoClient;
+    private readonly IBilleteraService _billeteraService;
 
     public PrediccionService(
         IPrediccionRepository prediccionRepository,
         IBilleteraRepository billeteraRepository,
-        IInfoPartidoClient infoPartidoClient)
+        IInfoPartidoClient infoPartidoClient,
+        IBilleteraService billeteraService)
     {
         _prediccionRepository = prediccionRepository;
         _billeteraRepository = billeteraRepository;
         _infoPartidoClient = infoPartidoClient;
+        _billeteraService = billeteraService;
     }
 
     public async Task<PrediccionResponse> CrearPrediccionAsync(CrearPrediccionRequest request)
@@ -40,8 +43,16 @@ public class PrediccionService : IPrediccionService
         if (partido.Estado != "PROGRAMADO" || partido.FechaHoraUtc <= DateTime.UtcNow)
             throw new PartidoYaIniciadoException();
 
-        var billetera = await _billeteraRepository.ObtenerPorUsuarioIdAsync(request.UsuarioId)
-            ?? throw new BilleteraNoEncontradaException(request.UsuarioId);
+        var billeteraEncontrada = await _billeteraRepository.ObtenerPorUsuarioIdAsync(request.UsuarioId);
+        if (billeteraEncontrada is null)
+        {
+            // Autocuración: crea la billetera con el bono de bienvenida si
+            // todavía no existía, en vez de fallar con "billetera no encontrada".
+            await _billeteraService.CrearBilleteraAsync(request.UsuarioId);
+            billeteraEncontrada = await _billeteraRepository.ObtenerPorUsuarioIdAsync(request.UsuarioId);
+        }
+        var billetera = billeteraEncontrada
+            ?? throw new BilleteraNoEncontradaException(request.UsuarioId); // no debería pasar nunca
 
         if (billetera.Saldo < request.Monto)
             throw new SaldoInsuficienteException();

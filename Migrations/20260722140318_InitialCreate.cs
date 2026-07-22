@@ -47,6 +47,37 @@ namespace UTNGolCoinApi.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "configuracion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    BonoInicial = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    MonedasPorAcierto = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    LimiteMaximoApuesta = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    ApuestasHabilitadas = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_configuracion", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "estado_simulacion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    FechaActual = table.Column<DateOnly>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_estado_simulacion", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "predicciones",
                 columns: table => new
                 {
@@ -123,6 +154,12 @@ namespace UTNGolCoinApi.Migrations
         {
             migrationBuilder.DropTable(
                 name: "bonos_diarios");
+
+            migrationBuilder.DropTable(
+                name: "configuracion");
+
+            migrationBuilder.DropTable(
+                name: "estado_simulacion");
 
             migrationBuilder.DropTable(
                 name: "predicciones");

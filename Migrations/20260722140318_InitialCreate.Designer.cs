@@ -12,7 +12,7 @@ using UTNGolCoinApi.Data;
 namespace UTNGolCoinApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260717130205_InitialCreate")]
+    [Migration("20260722140318_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -70,6 +70,47 @@ namespace UTNGolCoinApi.Migrations
                         .IsUnique();
 
                     b.ToTable("bonos_diarios", (string)null);
+                });
+
+            modelBuilder.Entity("UTNGolCoinApi.Models.ConfiguracionSistema", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ApuestasHabilitadas")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<decimal>("BonoInicial")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("LimiteMaximoApuesta")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("MonedasPorAcierto")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("configuracion", (string)null);
+                });
+
+            modelBuilder.Entity("UTNGolCoinApi.Models.EstadoSimulacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("FechaActual")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("estado_simulacion", (string)null);
                 });
 
             modelBuilder.Entity("UTNGolCoinApi.Models.Prediccion", b =>

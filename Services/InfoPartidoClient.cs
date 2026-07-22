@@ -49,7 +49,20 @@ public class InfoPartidoClient : IInfoPartidoClient
 
     public async Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId)
     {
-        var response = await _httpClient.GetAsync($"partidos/{partidoId}");
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.GetAsync($"partidos/{partidoId}");
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            // No se pudo ni siquiera contactar al servicio de Andre
+            // (IP/puerto incorrectos, su servicio apagado, etc.) — esto es
+            // distinto a que el partido no exista.
+            throw new ServicioEstadisticasNoDisponibleException(ex);
+        }
+
+        // Respondió, pero con un error (ej. 404): el partido no existe.
         if (!response.IsSuccessStatusCode) return null;
 
         var json = await response.Content.ReadAsStringAsync();

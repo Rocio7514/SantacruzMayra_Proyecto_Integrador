@@ -25,5 +25,12 @@ public class BilleteraRepository : IBilleteraRepository
     public Task<List<Billetera>> ObtenerTodasOrdenadasPorSaldoAsync() =>
         _db.Billeteras.OrderByDescending(w => w.Saldo).ToListAsync();
 
+    // Incluye las transacciones porque la simulación necesita agregar el
+    // movimiento del bono a cada billetera beneficiada.
+    public Task<List<Billetera>> ObtenerConSaldoCeroAsync() =>
+        _db.Billeteras.Include(w => w.Transacciones)
+                       .Where(w => w.Saldo == 0)
+                       .ToListAsync();
+
     public Task GuardarCambiosAsync() => _db.SaveChangesAsync();
 }

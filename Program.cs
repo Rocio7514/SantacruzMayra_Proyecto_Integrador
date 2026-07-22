@@ -19,24 +19,38 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
 var connectionString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-
 builder.Services.AddHttpClient<IInfoPartidoClient, InfoPartidoClient>(client =>
 {
     var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "https://splendid-levitate-swept.ngrok-free.dev/demo/api/v1"; // lo que me dio mi companera  Andrea
+        ?? "\"http://172.20.132.124:8000/demo/api/v1/"; // lo que me dio mi companera Andrea
     client.BaseAddress = new Uri(baseUrl);
 });
 
+// Mismo servicio de Andre, distinto endpoint (/auditoria en vez de /partidos).
+builder.Services.AddHttpClient<IAuditoriaClient, AuditoriaClient>(client =>
+{
+    var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
+        ?? "\"http://172.20.132.124:8000/demo/api/v1/";
+    client.BaseAddress = new Uri(baseUrl);
+});
+
+// Mismo servicio de Andre, endpoint /usuarios/{id} (para el nombre en el ranking).
+builder.Services.AddHttpClient<IUsuarioInfoClient, UsuarioInfoClient>(client =>
+{
+    var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
+        ?? "\"http://172.20.132.124:8000/demo/api/v1/";
+    client.BaseAddress = new Uri(baseUrl);
+});
 
 builder.Services.AddScoped<IBilleteraRepository, BilleteraRepository>();
 builder.Services.AddScoped<IPrediccionRepository, PrediccionRepository>();
 builder.Services.AddScoped<IBonoDiarioRepository, BonoDiarioRepository>();
 builder.Services.AddScoped<IConfiguracionRepository, ConfiguracionRepository>();
+builder.Services.AddScoped<IEstadoSimulacionRepository, EstadoSimulacionRepository>();
 
 builder.Services.AddScoped<IBilleteraService, BilleteraService>();
 builder.Services.AddScoped<IPrediccionService, PrediccionService>();
@@ -44,6 +58,7 @@ builder.Services.AddScoped<ILiquidacionService, LiquidacionService>();
 builder.Services.AddScoped<IBonoDiarioService, BonoDiarioService>();
 builder.Services.AddScoped<IConfiguracionService, ConfiguracionService>();
 builder.Services.AddScoped<IReportesService, ReportesService>();
+builder.Services.AddScoped<ISimulacionService, SimulacionService>();
 
 builder.Services.AddCors(options =>
 {
@@ -58,7 +73,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(); 
+    app.UseSwaggerUI();
 }
 
 app.UseCors("AllowFrontends");
