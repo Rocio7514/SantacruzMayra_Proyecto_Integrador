@@ -31,15 +31,32 @@ public class InfoPartidoDto
     {
         get
         {
-            if (FechaHoraUtc.HasValue) return FechaHoraUtc.Value;
-            if (!string.IsNullOrWhiteSpace(FechaHoraTexto) &&
-                DateTime.TryParse(FechaHoraTexto, null, DateTimeStyles.RoundtripKind, out var parsed))
+            // Hora local del equipo: ignorar el significado UTC del sufijo Z de Guacales.
+            if (!string.IsNullOrWhiteSpace(FechaHoraTexto))
             {
-                return parsed.Kind == DateTimeKind.Unspecified
-                    ? DateTime.SpecifyKind(parsed, DateTimeKind.Utc)
-                    : parsed.ToUniversalTime();
+                var limpio = FechaHoraTexto.Trim();
+                if (limpio.EndsWith("Z", StringComparison.OrdinalIgnoreCase))
+                {
+                    limpio = limpio[..^1];
+                }
+
+                if (DateTime.TryParse(
+                        limpio,
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.AssumeLocal | DateTimeStyles.AllowWhiteSpaces,
+                        out var parsed))
+                {
+                    return DateTime.SpecifyKind(parsed, DateTimeKind.Local);
+                }
             }
-            return DateTime.UtcNow;
+
+            if (FechaHoraUtc.HasValue)
+            {
+                var u = FechaHoraUtc.Value;
+                return new DateTime(u.Year, u.Month, u.Day, u.Hour, u.Minute, u.Second, DateTimeKind.Local);
+            }
+
+            return DateTime.Now;
         }
     }
 
