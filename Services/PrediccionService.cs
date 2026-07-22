@@ -37,7 +37,7 @@ public class PrediccionService : IPrediccionService
         var partido = await _infoPartidoClient.ObtenerPartidoAsync(request.PartidoId)
             ?? throw new PartidoNoEncontradoException(request.PartidoId);
 
-        if (partido.Estado != "PROGRAMADO" || partido.FechaHoraUtc <= DateTime.UtcNow)
+        if (partido.Estado != "PROGRAMADO" || partido.FechaHoraResuelta <= DateTime.UtcNow)
             throw new PartidoYaIniciadoException();
 
         var billetera = await _billeteraRepository.ObtenerPorUsuarioIdAsync(request.UsuarioId)

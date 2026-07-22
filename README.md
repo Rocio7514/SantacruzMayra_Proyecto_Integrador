@@ -39,7 +39,7 @@ Esto crea las tablas `billeteras`, `transacciones`, `predicciones` y `bonos_diar
 En `appsettings.json`:
 ```json
 "ServicioEstadisticas": {
-  "BaseUrl": "http://192.168.1.38:8080/demo/api/v1/"
+  "BaseUrl": "http://localhost:8080/demo/api/v1/"
 }
 ```
 Actualiza la IP si tu compañera cambia de red.
@@ -84,9 +84,9 @@ dotnet run --urls http://0.0.0.0:5000
 
 **Lo que este servicio consulta hacia Persona A** (`Services/InfoPartidoClient.cs`):
 ```
-GET http://192.168.1.38:8080/demo/api/v1/partidos/{id}
+GET http://localhost:8080/demo/api/v1/partidos/{id}
 ```
-Espera un JSON con: `id`, `fechaHoraUtc`, `estado`, `cuotaLocal`, `cuotaEmpate`, `cuotaVisitante`. Si los nombres de campo de Persona A son distintos, hay que ajustar `InfoPartidoDto` en ese archivo.
+Acepta el JSON de Guacales con `fechaHora` + `cuotas.{local,empate,visitante}`, y también el shape plano (`fechaHoraUtc`, `cuotaLocal`, etc.).
 
 ## 7. Notas de diseño
 

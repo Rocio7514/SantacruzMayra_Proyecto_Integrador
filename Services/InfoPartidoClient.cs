@@ -4,9 +4,8 @@ using System.Text.Json.Serialization;
 namespace UTNGolCoinApi.Services;
 
 /// <summary>
-/// Información mínima de un partido que este servicio necesita consultar
-/// en el Servicio de Estadísticas (Persona A) para validar una predicción:
-/// si ya comenzó, y las cuotas vigentes 1X2.
+/// Información mínima de un partido consultada en el Servicio de Estadísticas (Guacales).
+/// Acepta el shape plano (cuotaLocal) y el anidado de Guacales (cuotas.local + fechaHora).
 /// </summary>
 public class InfoPartidoDto
 {
@@ -14,26 +13,59 @@ public class InfoPartidoDto
     public int Id { get; set; }
 
     [JsonPropertyName("fechaHoraUtc")]
-    public DateTime FechaHoraUtc { get; set; }
+    public DateTime? FechaHoraUtc { get; set; }
+
+    [JsonPropertyName("fechaHora")]
+    public string? FechaHoraTexto { get; set; }
 
     [JsonPropertyName("estado")]
     public string Estado { get; set; } = "PROGRAMADO";
 
     [JsonPropertyName("cuotaLocal")]
-    public decimal CuotaLocal { get; set; }
+    public decimal? CuotaLocalPlana { get; set; }
 
     [JsonPropertyName("cuotaEmpate")]
-    public decimal CuotaEmpate { get; set; }
+    public decimal? CuotaEmpatePlana { get; set; }
 
     [JsonPropertyName("cuotaVisitante")]
-    public decimal CuotaVisitante { get; set; }
+    public decimal? CuotaVisitantePlana { get; set; }
+
+    [JsonPropertyName("cuotas")]
+    public CuotasAnidadasDto? Cuotas { get; set; }
+
+    public DateTime FechaHoraResuelta
+    {
+        get
+        {
+            if (FechaHoraUtc.HasValue) return FechaHoraUtc.Value;
+            if (!string.IsNullOrWhiteSpace(FechaHoraTexto) &&
+                DateTime.TryParse(FechaHoraTexto, null, System.Globalization.DateTimeStyles.RoundtripKind, out var parsed))
+            {
+                return parsed.Kind == DateTimeKind.Unspecified
+                    ? DateTime.SpecifyKind(parsed, DateTimeKind.Utc)
+                    : parsed.ToUniversalTime();
+            }
+            return DateTime.UtcNow;
+        }
+    }
+
+    public decimal CuotaLocal => CuotaLocalPlana ?? Cuotas?.Local ?? 0m;
+    public decimal CuotaEmpate => CuotaEmpatePlana ?? Cuotas?.Empate ?? 0m;
+    public decimal CuotaVisitante => CuotaVisitantePlana ?? Cuotas?.Visitante ?? 0m;
 }
 
-/// <summary>
-/// Cliente HTTP hacia el Servicio de Estadísticas. Se registra como
-/// HttpClient con nombre "ServicioEstadisticas" en Program.cs, apuntando
-/// a la URL base real que te compartió tu compañera de Persona A.
-/// </summary>
+public class CuotasAnidadasDto
+{
+    [JsonPropertyName("local")]
+    public decimal Local { get; set; }
+
+    [JsonPropertyName("empate")]
+    public decimal Empate { get; set; }
+
+    [JsonPropertyName("visitante")]
+    public decimal Visitante { get; set; }
+}
+
 public interface IInfoPartidoClient
 {
     Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId);
