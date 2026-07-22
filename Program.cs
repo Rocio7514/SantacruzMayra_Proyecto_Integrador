@@ -26,23 +26,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddHttpClient<IInfoPartidoClient, InfoPartidoClient>(client =>
 {
     var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "\"http://172.20.132.124:8000/demo/api/v1/"; // lo que me dio mi companera Andrea
+        ?? "http://172.20.132.124:8080/demo/api/v1/";
     client.BaseAddress = new Uri(baseUrl);
 });
 
-// Mismo servicio de Andre, distinto endpoint (/auditoria en vez de /partidos).
+// Mismo servicio de Andrea, distinto endpoint (/auditoria en vez de /partidos).
 builder.Services.AddHttpClient<IAuditoriaClient, AuditoriaClient>(client =>
 {
     var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "\"http://172.20.132.124:8000/demo/api/v1/";
+        ?? "http://172.20.132.124:8080/demo/api/v1/";
     client.BaseAddress = new Uri(baseUrl);
 });
 
-// Mismo servicio de Andre, endpoint /usuarios/{id} (para el nombre en el ranking).
+// Mismo servicio de Andrea, endpoint /usuarios/{id} (para el nombre en el ranking).
 builder.Services.AddHttpClient<IUsuarioInfoClient, UsuarioInfoClient>(client =>
 {
     var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "\"http://172.20.132.124:8000/demo/api/v1/";
+        ?? "http://172.20.132.124:8080/demo/api/v1/";
     client.BaseAddress = new Uri(baseUrl);
 });
 
