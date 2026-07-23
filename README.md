@@ -81,6 +81,22 @@ curl http://localhost:5001/swagger/index.html
 
 Swagger se habilita con `ASPNETCORE_ENVIRONMENT=Development`.
 
+### Windows con Visual Studio 2022
+
+1. Abre `UTNGolCoinApi.slnx`.
+2. Inicia el servicio MySQL de Windows y crea `utngolcoin_db`.
+3. En **Propiedades del proyecto → Depurar → Abrir perfiles de inicio**, usa
+   `http://0.0.0.0:5001`.
+4. Agrega estas variables al perfil:
+
+```text
+ASPNETCORE_ENVIRONMENT=Development
+ServicioEstadisticas__BaseUrl=http://IP_DE_ANDREA:18080/demo/api/v1/
+ConnectionStrings__Default=server=localhost;port=3306;database=utngolcoin_db;user=root;password=TU_PASSWORD
+```
+
+5. Ejecuta con **F5**. Si Windows pregunta por el firewall, permite redes privadas.
+
 ## Flujo real de integración
 
 Usa un `partidoId` real, existente y todavía programado en Guacales:
