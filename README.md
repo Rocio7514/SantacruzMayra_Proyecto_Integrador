@@ -25,23 +25,17 @@ La aplicación aplica automáticamente las migraciones EF al iniciar. Si MySQL t
 
 ## Configuración
 
-La conexión MySQL y la URL de Guacales son obligatorias: no hay contraseña ni
-IP personal por defecto en el código.
+`appsettings.json` conserva la configuración que Mayra ya utilizaba:
 
-En Linux usa variables de entorno:
+- MySQL local en `localhost:3306`.
+- Base `utngolcoin_db`.
+- Usuario `root` y contraseña `rocio123`.
 
-```bash
-export ConnectionStrings__Default='server=127.0.0.1;port=3306;database=utngolcoin_db;user=root;password=TU_PASSWORD'
-export ServicioEstadisticas__BaseUrl='http://IP_DE_ANDREA:18080/demo/api/v1/'
-```
-
-No guardes contraseñas ni direcciones LAN personales en `appsettings.json`.
-
-En la red del equipo, Mayra solo cambia la IP de Andrea:
+En la red del equipo solo debe reemplazar la IP de Andrea en
+`ServicioEstadisticas:BaseUrl`. En Linux también puede sobrescribirla por entorno:
 
 ```bash
 export ServicioEstadisticas__BaseUrl='http://IP_DE_ANDREA:18080/demo/api/v1/'
-make run
 ```
 
 El `Makefile` escucha en `0.0.0.0:5001`; los demás consumen esta API con
@@ -81,16 +75,9 @@ Swagger se habilita con `ASPNETCORE_ENVIRONMENT=Development`.
 ### Windows con Visual Studio 2022
 
 1. Inicia el servicio MySQL de Windows.
-2. Desde PowerShell, en la raíz del repositorio, ejecuta:
-
-```powershell
-.\scripts\configurar-windows.ps1 -AndreaIp IP_DE_ANDREA
-```
-
-El script conserva el usuario `root`, crea la base si falta, solicita su
-contraseña y guarda la conexión y la IP de Andrea en **User Secrets**, fuera de Git.
-
-3. Abre `UTNGolCoinApi.slnx` y ejecuta con **F5**. El perfil ya escucha en
+2. Abre `appsettings.json` y cambia únicamente `172.20.132.124` por la IP actual
+   de Andrea. Si su contraseña root cambió, actualiza `password=rocio123`.
+3. Abre `UTNGolCoinApi.slnx` y ejecuta con **F5**. El perfil escucha en
    `0.0.0.0:5001`. Si Windows pregunta por el firewall, permite redes privadas.
 
 ## Flujo real de integración
