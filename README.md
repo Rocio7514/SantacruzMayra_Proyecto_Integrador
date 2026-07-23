@@ -28,17 +28,27 @@ La aplicación aplica automáticamente las migraciones EF al iniciar. Si MySQL t
 Los valores locales por defecto son:
 
 - MySQL: `localhost:3306`, base `utngolcoin_db`, usuario `root`, sin contraseña fija.
-- Guacales: `http://localhost:8080/demo/api/v1/`.
+- Guacales: `http://localhost:18080/demo/api/v1/`.
 - UTNGolCoin: `http://localhost:5001`.
 
 Para una instalación con credenciales o puertos distintos, usa los overrides estándar de ASP.NET Core:
 
 ```bash
 export ConnectionStrings__Default='server=localhost;port=3306;database=utngolcoin_db;user=utngolcoin;password=TU_PASSWORD'
-export ServicioEstadisticas__BaseUrl='http://localhost:8080/demo/api/v1/'
+export ServicioEstadisticas__BaseUrl='http://localhost:18080/demo/api/v1/'
 ```
 
 No guardes contraseñas ni direcciones LAN personales en `appsettings.json`.
+
+En la red del equipo, Mayra solo cambia la IP de Andrea:
+
+```bash
+export ServicioEstadisticas__BaseUrl='http://IP_DE_ANDREA:18080/demo/api/v1/'
+make run
+```
+
+El `Makefile` escucha en `0.0.0.0:5001`; los demás consumen esta API con
+`http://IP_DE_MAYRA:5001/api/`.
 
 ## Iniciar
 

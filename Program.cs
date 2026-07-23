@@ -28,7 +28,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 0))));
 
 var servicioEstadisticasBaseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-    ?? "http://localhost:8080/demo/api/v1/";
+    ?? "http://localhost:18080/demo/api/v1/";
 var servicioEstadisticasUri = new Uri(
     $"{servicioEstadisticasBaseUrl.TrimEnd('/')}/",
     UriKind.Absolute);
