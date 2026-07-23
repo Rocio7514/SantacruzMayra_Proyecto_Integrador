@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
@@ -106,24 +107,37 @@ public class InfoPartidoClient : IInfoPartidoClient
             throw new ServicioEstadisticasNoDisponibleException(ex);
         }
 
-        if (!response.IsSuccessStatusCode)
+        using (response)
         {
-            _logger.LogWarning(
-                "Guacales respondió {Status} al pedir partido {PartidoId}",
-                (int)response.StatusCode,
-                partidoId);
-            return null;
-        }
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
 
-        var json = await response.Content.ReadAsStringAsync();
-        try
-        {
-            return ParsearPartido(json);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "No se pudo parsear el partido {PartidoId} de Guacales", partidoId);
-            throw new ServicioEstadisticasNoDisponibleException(ex);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    "Guacales respondió {Status} al pedir partido {PartidoId}",
+                    (int)response.StatusCode,
+                    partidoId);
+                throw new ServicioEstadisticasNoDisponibleException(
+                    new HttpRequestException(
+                        $"Guacales respondió HTTP {(int)response.StatusCode}.",
+                        inner: null,
+                        response.StatusCode));
+            }
+
+            try
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                return ParsearPartido(json)
+                    ?? throw new JsonException("Guacales no devolvió un objeto JSON de partido.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "No se pudo leer o parsear el partido {PartidoId} de Guacales", partidoId);
+                throw new ServicioEstadisticasNoDisponibleException(ex);
+            }
         }
     }
 

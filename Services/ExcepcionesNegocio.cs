@@ -29,7 +29,7 @@ public class PartidoNoEncontradoException : ExcepcionNegocio
 public class ServicioEstadisticasNoDisponibleException : ExcepcionNegocio
 {
     public ServicioEstadisticasNoDisponibleException(Exception inner)
-        : base($"No se pudo conectar con el Servicio de Estadísticas (Persona A). Verifica que su API esté corriendo y que la URL en appsettings.json sea correcta. Detalle: {inner.Message}") { }
+        : base($"El Servicio de Estadísticas (Guacales) no está disponible o devolvió una respuesta inválida. Verifica que su API esté corriendo y la configuración ServicioEstadisticas__BaseUrl. Detalle: {inner.Message}") { }
 }
 
 public class PartidoYaIniciadoException : ExcepcionNegocio

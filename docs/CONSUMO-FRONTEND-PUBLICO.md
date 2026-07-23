@@ -5,7 +5,7 @@ El portal de apuestas (`frontend-publico-mvc`, puerto 5081) consume esta API.
 ## Base URL local
 
 ```
-http://localhost:5000/api
+http://localhost:5001/api
 ```
 
 ## Endpoints usados por el frontend

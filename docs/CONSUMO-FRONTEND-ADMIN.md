@@ -3,7 +3,7 @@
 Además de Estadísticas, el panel puede consultar la salud de UTNGolCoin:
 
 ```
-GET http://localhost:5000/api/salud
+GET http://localhost:5001/api/salud
 ```
 
 Útil en la vista de estado de servicios cuando ambos backends están en la misma máquina de demo.

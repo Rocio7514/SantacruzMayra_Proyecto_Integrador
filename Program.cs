@@ -19,31 +19,35 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-var connectionString = builder.Configuration.GetConnectionString("Default");
+var connectionString = builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException(
+        "Falta ConnectionStrings:Default. Configúrala con ConnectionStrings__Default.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(
+        connectionString,
+        new MySqlServerVersion(new Version(8, 0, 0))));
+
+var servicioEstadisticasBaseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
+    ?? "http://localhost:8080/demo/api/v1/";
+var servicioEstadisticasUri = new Uri(
+    $"{servicioEstadisticasBaseUrl.TrimEnd('/')}/",
+    UriKind.Absolute);
 
 builder.Services.AddHttpClient<IInfoPartidoClient, InfoPartidoClient>(client =>
 {
-    var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "http://172.20.132.124:8080/demo/api/v1/";
-    client.BaseAddress = new Uri(baseUrl);
+    client.BaseAddress = servicioEstadisticasUri;
 });
 
 // Mismo servicio de Andrea, distinto endpoint (/auditoria en vez de /partidos).
 builder.Services.AddHttpClient<IAuditoriaClient, AuditoriaClient>(client =>
 {
-    var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "http://172.20.132.124:8080/demo/api/v1/";
-    client.BaseAddress = new Uri(baseUrl);
+    client.BaseAddress = servicioEstadisticasUri;
 });
 
 // Mismo servicio de Andrea, endpoint /usuarios/{id} (para el nombre en el ranking).
 builder.Services.AddHttpClient<IUsuarioInfoClient, UsuarioInfoClient>(client =>
 {
-    var baseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-        ?? "http://172.20.132.124:8080/demo/api/v1/";
-    client.BaseAddress = new Uri(baseUrl);
+    client.BaseAddress = servicioEstadisticasUri;
 });
 
 builder.Services.AddScoped<IBilleteraRepository, BilleteraRepository>();
@@ -68,6 +72,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+await AplicarMigracionesAsync(app.Services, app.Logger);
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -81,3 +87,31 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static async Task AplicarMigracionesAsync(IServiceProvider services, ILogger logger)
+{
+    const int maximoIntentos = 10;
+    var espera = TimeSpan.FromSeconds(3);
+
+    for (var intento = 1; intento <= maximoIntentos; intento++)
+    {
+        try
+        {
+            await using var scope = services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await db.Database.MigrateAsync();
+            logger.LogInformation("Migraciones de base de datos aplicadas correctamente.");
+            return;
+        }
+        catch (Exception ex) when (intento < maximoIntentos)
+        {
+            logger.LogWarning(
+                ex,
+                "MySQL aún no está disponible. Reintento {Intento}/{MaximoIntentos} en {Segundos} segundos.",
+                intento,
+                maximoIntentos,
+                espera.TotalSeconds);
+            await Task.Delay(espera);
+        }
+    }
+}
