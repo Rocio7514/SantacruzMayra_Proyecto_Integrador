@@ -33,7 +33,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 var servicioEstadisticasBaseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"];
 if (string.IsNullOrWhiteSpace(servicioEstadisticasBaseUrl))
 {
-    servicioEstadisticasBaseUrl = "http://172.20.132.124:18080/demo/api/v1/";
+    servicioEstadisticasBaseUrl = "http://172.20.132.124:8080/demo/api/v1/";
 }
 var servicioEstadisticasUri = new Uri(
     $"{servicioEstadisticasBaseUrl.TrimEnd('/')}/",

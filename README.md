@@ -34,7 +34,7 @@ En la red del equipo solo debe reemplazar la IP de Andrea en
 `ServicioEstadisticas:BaseUrl`. En Linux también puede sobrescribirla por entorno:
 
 ```bash
-export ServicioEstadisticas__BaseUrl='http://IP_DE_ANDREA:18080/demo/api/v1/'
+export ServicioEstadisticas__BaseUrl='http://IP_DE_ANDREA:8080/demo/api/v1/'
 ```
 
 La API escucha en `0.0.0.0:5001`; los demás la consumen con
