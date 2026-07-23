@@ -25,13 +25,13 @@ La aplicación aplica automáticamente las migraciones EF al iniciar. Si MySQL t
 
 ## Configuración
 
-La conexión MySQL y la URL de Guacales son obligatorias: no hay usuario root,
-contraseña ni IP personal por defecto en el código.
+La conexión MySQL y la URL de Guacales son obligatorias: no hay contraseña ni
+IP personal por defecto en el código.
 
 En Linux usa variables de entorno:
 
 ```bash
-export ConnectionStrings__Default='server=127.0.0.1;port=3306;database=utngolcoin_db;user=utngolcoin;password=TU_PASSWORD'
+export ConnectionStrings__Default='server=127.0.0.1;port=3306;database=utngolcoin_db;user=root;password=TU_PASSWORD'
 export ServicioEstadisticas__BaseUrl='http://IP_DE_ANDREA:18080/demo/api/v1/'
 ```
 
@@ -87,8 +87,8 @@ Swagger se habilita con `ASPNETCORE_ENVIRONMENT=Development`.
 .\scripts\configurar-windows.ps1 -AndreaIp IP_DE_ANDREA
 ```
 
-El script crea la base y el usuario `utngolcoin`, solicita las contraseñas y
-guarda la conexión y la IP de Andrea en **User Secrets**, fuera de Git.
+El script conserva el usuario `root`, crea la base si falta, solicita su
+contraseña y guarda la conexión y la IP de Andrea en **User Secrets**, fuera de Git.
 
 3. Abre `UTNGolCoinApi.slnx` y ejecuta con **F5**. El perfil ya escucha en
    `0.0.0.0:5001`. Si Windows pregunta por el firewall, permite redes privadas.
