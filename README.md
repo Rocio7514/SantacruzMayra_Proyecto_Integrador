@@ -13,7 +13,6 @@ Requisitos:
 - .NET SDK 10
 - MySQL Server 8
 - Servicio de Estadísticas (Guacales) en ejecución
-- `make` (opcional; debajo también se muestra el comando `dotnet`)
 
 Crear la base una sola vez:
 
@@ -38,25 +37,10 @@ En la red del equipo solo debe reemplazar la IP de Andrea en
 export ServicioEstadisticas__BaseUrl='http://IP_DE_ANDREA:18080/demo/api/v1/'
 ```
 
-El `Makefile` escucha en `0.0.0.0:5001`; los demás consumen esta API con
+La API escucha en `0.0.0.0:5001`; los demás la consumen con
 `http://IP_DE_MAYRA:5001/api/`.
 
 ## Iniciar
-
-Con Make:
-
-```bash
-make restore
-make run
-```
-
-Para elegir otro puerto:
-
-```bash
-PORT=5010 make run
-```
-
-Comando equivalente sin Make:
 
 ```bash
 dotnet restore
