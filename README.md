@@ -25,17 +25,14 @@ La aplicación aplica automáticamente las migraciones EF al iniciar. Si MySQL t
 
 ## Configuración
 
-Los valores locales por defecto son:
+La conexión MySQL y la URL de Guacales son obligatorias: no hay usuario root,
+contraseña ni IP personal por defecto en el código.
 
-- MySQL: `localhost:3306`, base `utngolcoin_db`, usuario `root`, sin contraseña fija.
-- Guacales: `http://localhost:18080/demo/api/v1/`.
-- UTNGolCoin: `http://localhost:5001`.
-
-Para una instalación con credenciales o puertos distintos, usa los overrides estándar de ASP.NET Core:
+En Linux usa variables de entorno:
 
 ```bash
-export ConnectionStrings__Default='server=localhost;port=3306;database=utngolcoin_db;user=utngolcoin;password=TU_PASSWORD'
-export ServicioEstadisticas__BaseUrl='http://localhost:18080/demo/api/v1/'
+export ConnectionStrings__Default='server=127.0.0.1;port=3306;database=utngolcoin_db;user=utngolcoin;password=TU_PASSWORD'
+export ServicioEstadisticas__BaseUrl='http://IP_DE_ANDREA:18080/demo/api/v1/'
 ```
 
 No guardes contraseñas ni direcciones LAN personales en `appsettings.json`.
@@ -69,33 +66,32 @@ Comando equivalente sin Make:
 
 ```bash
 dotnet restore
-dotnet run --no-launch-profile --urls http://localhost:5001
+dotnet run --no-launch-profile --urls http://0.0.0.0:5001
 ```
 
 Verificaciones:
 
 ```bash
-curl http://localhost:5001/api/salud
-curl http://localhost:5001/swagger/index.html
+curl http://127.0.0.1:5001/api/salud
+curl http://127.0.0.1:5001/swagger/index.html
 ```
 
 Swagger se habilita con `ASPNETCORE_ENVIRONMENT=Development`.
 
 ### Windows con Visual Studio 2022
 
-1. Abre `UTNGolCoinApi.slnx`.
-2. Inicia el servicio MySQL de Windows y crea `utngolcoin_db`.
-3. En **Propiedades del proyecto → Depurar → Abrir perfiles de inicio**, usa
-   `http://0.0.0.0:5001`.
-4. Agrega estas variables al perfil:
+1. Inicia el servicio MySQL de Windows.
+2. Desde PowerShell, en la raíz del repositorio, ejecuta:
 
-```text
-ASPNETCORE_ENVIRONMENT=Development
-ServicioEstadisticas__BaseUrl=http://IP_DE_ANDREA:18080/demo/api/v1/
-ConnectionStrings__Default=server=localhost;port=3306;database=utngolcoin_db;user=root;password=TU_PASSWORD
+```powershell
+.\scripts\configurar-windows.ps1 -AndreaIp IP_DE_ANDREA
 ```
 
-5. Ejecuta con **F5**. Si Windows pregunta por el firewall, permite redes privadas.
+El script crea la base y el usuario `utngolcoin`, solicita las contraseñas y
+guarda la conexión y la IP de Andrea en **User Secrets**, fuera de Git.
+
+3. Abre `UTNGolCoinApi.slnx` y ejecuta con **F5**. El perfil ya escucha en
+   `0.0.0.0:5001`. Si Windows pregunta por el firewall, permite redes privadas.
 
 ## Flujo real de integración
 

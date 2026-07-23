@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>UTNGolCoinApi</RootNamespace>
+    <UserSecretsId>UTNGolCoinApi-Local</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -27,8 +27,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         connectionString,
         new MySqlServerVersion(new Version(8, 0, 0))));
 
-var servicioEstadisticasBaseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"]
-    ?? "http://localhost:18080/demo/api/v1/";
+var servicioEstadisticasBaseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"];
+if (string.IsNullOrWhiteSpace(servicioEstadisticasBaseUrl))
+{
+    throw new InvalidOperationException(
+        "Falta ServicioEstadisticas:BaseUrl. Configúrala con ServicioEstadisticas__BaseUrl o User Secrets.");
+}
 var servicioEstadisticasUri = new Uri(
     $"{servicioEstadisticasBaseUrl.TrimEnd('/')}/",
     UriKind.Absolute);
