@@ -19,9 +19,12 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-var connectionString = builder.Configuration.GetConnectionString("Default")
-    ?? throw new InvalidOperationException(
-        "Falta ConnectionStrings:Default. Configúrala con ConnectionStrings__Default.");
+var connectionString = builder.Configuration.GetConnectionString("Default");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    connectionString =
+        "server=localhost;port=3306;database=utngolcoin_db;user=root;password=rocio123";
+}
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         connectionString,
@@ -30,8 +33,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 var servicioEstadisticasBaseUrl = builder.Configuration["ServicioEstadisticas:BaseUrl"];
 if (string.IsNullOrWhiteSpace(servicioEstadisticasBaseUrl))
 {
-    throw new InvalidOperationException(
-        "Falta ServicioEstadisticas:BaseUrl. Configúrala con ServicioEstadisticas__BaseUrl o User Secrets.");
+    servicioEstadisticasBaseUrl = "http://172.20.132.124:18080/demo/api/v1/";
 }
 var servicioEstadisticasUri = new Uri(
     $"{servicioEstadisticasBaseUrl.TrimEnd('/')}/",
